@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <OutputType>Library</OutputType>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="src\**\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="generated/references/*.dll">
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+</Project>

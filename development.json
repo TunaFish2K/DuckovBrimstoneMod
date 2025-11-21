@@ -1,0 +1,20 @@
+{
+    "references": {
+        "managed": [
+            "SodaLocalization.dll",
+            "TeamSoda.Duckov.Core.dll",
+            "TeamSoda.Duckov.Utilities.dll",
+            "TeamSoda.MiniLocalizor.dll",
+            "UnityEngine.dll",
+            "UnityEngine.CoreModule.dll",
+            "ItemStatsSystem.dll"
+        ],
+        "harmony": {
+            "archive": "https://github.com/pardeike/Harmony/releases/download/v2.4.2.0/Harmony-Fat.2.4.2.0.zip",
+            "file": "net35/0Harmony.dll"
+        }
+    },
+    "installation": {
+        "name": "DuckovBrimstoneMod"
+    }
+}
