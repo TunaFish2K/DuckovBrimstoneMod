@@ -1,0 +1,14 @@
+{
+  "name": "tools",
+  "private": "true",
+  "type": "module",
+  "devDependencies": {
+    "@types/adm-zip": "^0.5.7",
+    "@types/node": "^24.10.1"
+  },
+  "dependencies": {
+    "adm-zip": "^0.5.16",
+    "commander": "^14.0.2",
+    "undici": "^7.16.0"
+  }
+}
