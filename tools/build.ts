@@ -1,7 +1,8 @@
 import { Command } from "commander";
 import { execSync } from "child_process";
-import * as fs from "fs";
-import * as path from "path";
+import { existsSync } from "fs";
+import { copyFile, mkdir, rm, readdir, readFile } from "fs/promises";
+import { join, resolve } from "path";
 
 const app = new Command();
 
@@ -10,16 +11,16 @@ const build = app
   .description("build the mod.")
   .option("-r, --release", "build as release.")
   .action(async (options) => {
-    const projectRoot = path.resolve(import.meta.dirname, "..");
-    const outputDir = path.join(projectRoot, "generated", "output");
-    const assetsDir = path.join(projectRoot, "assets");
+    const projectRoot = resolve(import.meta.dirname, "..");
+    const outputDir = join(projectRoot, "generated", "output");
+    const assetsDir = join(projectRoot, "assets");
 
     console.log("cleaning...");
     // 清空 generated/output 目录
-    if (fs.existsSync(outputDir)) {
-      fs.rmSync(outputDir, { recursive: true, force: true });
+    if (existsSync(outputDir)) {
+      await rm(outputDir, { recursive: true, force: true });
     }
-    fs.mkdirSync(outputDir, { recursive: true });
+    await mkdir(outputDir, { recursive: true });
 
     console.log("building...");
     // 调用 dotnet build，输出到 generated/output
@@ -41,10 +42,10 @@ const build = app
     // 复制 info.ini 和 preview.png
     const filesToCopy = ["info.ini", "preview.png"];
     for (const file of filesToCopy) {
-      const src = path.join(assetsDir, file);
-      const dest = path.join(outputDir, file);
-      if (fs.existsSync(src)) {
-        fs.copyFileSync(src, dest);
+      const src = join(assetsDir, file);
+      const dest = join(outputDir, file);
+      if (existsSync(src)) {
+        await copyFile(src, dest);
         console.log(`${file} copied.`);
       } else {
         console.warn(`${file} not found!`);
@@ -62,12 +63,12 @@ const install = app
     "the game mods folder path (overrides DUCKOV_MODS_FOLDER)"
   )
   .action(async (options) => {
-    const projectRoot = path.resolve(import.meta.dirname, "..");
-    const outputDir = path.join(projectRoot, "generated", "output");
-    const devConfigPath = path.join(projectRoot, "development.json");
+    const projectRoot = resolve(import.meta.dirname, "..");
+    const outputDir = join(projectRoot, "generated", "output");
+    const devConfigPath = join(projectRoot, "development.json");
 
     // 检查 generated/output 是否存在
-    if (!fs.existsSync(outputDir)) {
+    if (!existsSync(outputDir)) {
       console.error("output folder not found! run 'build' first.");
       process.exit(1);
     }
@@ -75,7 +76,7 @@ const install = app
     // 读取 development.json
     let modName: string;
     try {
-      const devConfig = JSON.parse(fs.readFileSync(devConfigPath, "utf-8"));
+      const devConfig = JSON.parse(await readFile(devConfigPath, "utf-8"));
       modName = devConfig.installation?.name;
       if (!modName) {
         throw new Error("installation.name not found in development.json");
@@ -96,27 +97,27 @@ const install = app
       process.exit(1);
     }
 
-    const resolvedModFolder = path.resolve(modFolderPath);
-    const targetDir = path.join(resolvedModFolder, modName);
+    const resolvedModFolder = resolve(modFolderPath);
+    const targetDir = join(resolvedModFolder, modName);
 
     console.log(`installing to: ${targetDir}`);
 
     // 删除已存在的文件夹
-    if (fs.existsSync(targetDir)) {
+    if (existsSync(targetDir)) {
       console.log("removing existing folder...");
-      fs.rmSync(targetDir, { recursive: true, force: true });
+      await rm(targetDir, { recursive: true, force: true });
     }
 
     // 创建目标文件夹
-    fs.mkdirSync(targetDir, { recursive: true });
+    await mkdir(targetDir, { recursive: true });
 
     // 复制 generated/output 的内容
     console.log("copying files...");
-    const files = fs.readdirSync(outputDir);
+    const files = await readdir(outputDir);
     for (const file of files) {
-      const src = path.join(outputDir, file);
-      const dest = path.join(targetDir, file);
-      fs.copyFileSync(src, dest);
+      const src = join(outputDir, file);
+      const dest = join(targetDir, file);
+      await copyFile(src, dest);
       console.log(`  ${file} copied.`);
     }
 
